@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester GPA Calculator | حاسبة المعدل الفصلي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            padding: 20px;
+            perspective: 1000px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            transform-style: preserve-3d;
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) rotateX(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            transform: translateZ(20px);
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .lang-btn {
+            padding: 10px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .lang-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .subject-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.4s;
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .subject-card:hover::before {
+            left: 100%;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-5px) translateZ(10px);
+            border-color: #667eea;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .subject-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .coefficient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        input[type="number"] {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateZ(5px);
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .calculate-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .result {
+            margin-top: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            display: none;
+            transform-style: preserve-3d;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            animation: resultAppear 0.6s ease-out;
+        }
+        
+        @keyframes resultAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) rotateX(-20deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotateX(0);
+            }
+        }
+        
+        .result h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .gpa-display {
+            font-size: 5em;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .detail-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .subjects-breakdown {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .breakdown-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .subject-result {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .subject-result:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .gpa-display {
+                font-size: 3.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 حاسبة المعدل الفصلي | Semester GPA Calculator</h1>
+            <p class="subtitle">Tests: 40% | Exam: 60%</p>
+        </div>
+        
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="switchLang('ar')">العربية</button>
+            <button class="lang-btn" onclick="switchLang('en')">English</button>
+        </div>
+        
+        <div class="subjects-grid" id="subjects-grid"></div>
+        
+        <button class="calculate-btn" onclick="calculateGPA()">
+            <span class="calc-text-ar">📊 حساب المعدل الفصلي</span>
+            <span class="calc-text-en" style="display:none;">📊 Calculate Semester GPA</span>
+        </button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const subjects = [
+            { nameAr: 'الجبر', nameEn: 'Algebra', coef: 3, hasTest: true },
+            { nameAr: 'التحليل الرياضي', nameEn: 'Mathematical Analysis', coef: 3, hasTest: true },
+            { nameAr: 'الاحتمالات', nameEn: 'Probability', coef: 3, hasTest: true },
+            { nameAr: 'التحليل المالي', nameEn: 'Financial Analysis', coef: 2, hasTest: true },
+            { nameAr: 'الاقتصاد الجزئي', nameEn: 'Microeconomics', coef: 2, hasTest: true },
+            { nameAr: 'المعلوماتية', nameEn: 'Computer Science', coef: 2, hasTest: true },
+            { nameAr: 'الإنجليزية', nameEn: 'English', coef: 1, hasTest: true },
+            { nameAr: 'الفرنسية', nameEn: 'French', coef: 1, hasTest: true },
+            { nameAr: 'الجغرافيا', nameEn: 'Geography', coef: 1, hasTest: false }
+        ];
+
+        let currentLang = 'ar';
+
+        function renderSubjects() {
+            const grid = document.getElementById('subjects-grid');
+            grid.innerHTML = '';
+            
+            subjects.forEach((subject, index) => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                
+                const name = currentLang === 'ar' ? subject.nameAr : subject.nameEn;
+                const testLabel = currentLang === 'ar' ? 'علامة Tests (40%)' : 'Tests Grade (40%)';
+                const examLabel = currentLang === 'ar' ? 'علامة Exam (60%)' : 'Exam Grade (60%)';
+                const directLabel = currentLang === 'ar' ? 'العلامة المباشرة' : 'Direct Grade';
+                const coefLabel = currentLang === 'ar' ? 'معامل' : 'Coef';
+                
+                if (subject.hasTest) {
+                    card.innerHTML = `
+                        <div class="subject-header">
+                            <div class="subject-name">${name}</div>
+                            <div class="coefficient">${coefLabel}: ${subject.coef}</div>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label>${testLabel}</label>
+                                <input type="number" id="test-${index}" min="0" max="20" step="0.01" placeholder="0 - 20">
+                            </div>
+                            <div class="input-group">
+                                <label>${examLabel}</label>
+                                <input type="number" id="exam-${index}" min="0" max="20" step="0.01" placeholder="0 - 20">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="subject-header">
+                            <div class="subject-name">${name}</div>
+                            <div class="coefficient">${coefLabel}: ${subject.coef}</div>
+                        </div>
+                        <div class="input-group full-width">
+                            <label>${directLabel}</label>
+                            <input type="number" id="exam-${index}" min="0" max="20" step="0.01" placeholder="0 - 20">
+                        </div>
+                    `;
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (lang === 'ar') {
+                document.querySelector('.calc-text-ar').style.display = 'inline';
+                document.querySelector('.calc-text-en').style.display = 'none';
+            } else {
+                document.querySelector('.calc-text-ar').style.display = 'none';
+                document.querySelector('.calc-text-en').style.display = 'inline';
+            }
+            
+            renderSubjects();
+        }
+
+        function calculateGPA() {
+            let totalWeighted = 0;
+            let totalCoef = 0;
+            let breakdownHTML = '';
+            let allValid = true;
+            
+            subjects.forEach((subject, index) => {
+                const name = currentLang === 'ar' ? subject.nameAr : subject.nameEn;
+                let subjectGrade = 0;
+                
+                if (subject.hasTest) {
+                    const testGrade = parseFloat(document.getElementById(`test-${index}`).value);
+                    const examGrade = parseFloat(document.getElementById(`exam-${index}`).value);
+                    
+                    if (isNaN(testGrade) || isNaN(examGrade)) {
+                        allValid = false;
+                        return;
+                    }
+                    
+                    subjectGrade = (testGrade * 0.4) + (examGrade * 0.6);
+                } else {
+                    const directGrade = parseFloat(document.getElementById(`exam-${index}`).value);
+                    
+                    if (isNaN(directGrade)) {
+                        allValid = false;
+                        return;
+                    }
+                    
+                    subjectGrade = directGrade;
+                }
+                
+                totalWeighted += subjectGrade * subject.coef;
+                totalCoef += subject.coef;
+                
+                breakdownHTML += `
+                    <div class="subject-result">
+                        <span>${name}</span>
+                        <span><strong>${subjectGrade.toFixed(2)}/20</strong> (×${subject.coef})</span>
+                    </div>
+                `;
+            });
+            
+            if (!allValid) {
+                const msg = currentLang === 'ar' 
+                    ? 'الرجاء إدخال جميع العلامات' 
+                    : 'Please enter all grades';
+                alert(msg);
+                return;
+            }
+            
+            const gpa = totalWeighted / totalCoef;
+            
+            const resultDiv = document.getElementById('result');
+            const title = currentLang === 'ar' ? 'النتيجة النهائية' : 'Final Result';
+            const totalSubjects = currentLang === 'ar' ? 'عدد المواد' : 'Total Subjects';
+            const totalCoefLabel = currentLang === 'ar' ? 'مجموع المعاملات' : 'Total Coefficients';
+            const yourGPA = currentLang === 'ar' ? 'معدلك الفصلي' : 'Your Semester GPA';
+            const breakdown = currentLang === 'ar' ? 'تفاصيل المواد' : 'Subjects Breakdown';
+            
+            resultDiv.innerHTML = `
+                <h2>${title}</h2>
+                <div class="gpa-display">${gpa.toFixed(2)} / 20</div>
+                <p style="font-size: 1.2em; opacity: 0.9;">${yourGPA}</p>
+                
+                <div class="result-details">
+                    <div class="detail-card">
+                        <div class="detail-label">${totalSubjects}</div>
+                        <div class="detail-value">${subjects.length}</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">${totalCoefLabel}</div>
+                        <div class="detail-value">${totalCoef}</div>
+                    </div>
+                </div>
+                
+                <div class="subjects-breakdown">
+                    <div class="breakdown-title">${breakdown}</div>
+                    ${breakdownHTML}
+                </div>
+            `;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        window.onload = function() {
+            renderSubjects();
+        };
+    </script>
+</body>
+</html>
